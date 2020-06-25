@@ -9,7 +9,7 @@ package com.xiaoyuan.mq.rabbitmq.template.server.work;
  * 二:公平分发(能者多劳模式)
  * 1、根据消费的时间去分发,谁消费结束直接再次发送给他
  */
-public interface ParamConstant {
+public interface WorkParamConstant {
 
     static final String QUEUE_NAME = "test_queue_work";
 

@@ -1,7 +1,6 @@
 package com.xiaoyuan.mq.rabbitmq.template.server.work;
 
 
-import com.xiaoyuan.mq.rabbitmq.template.server.simple.ParamConstant;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +45,7 @@ public class WorkProvider {
             // 通过实现 ConfirmCallback 接口，消息发送到 Broker 后触发回调，确认消息是否到达 Broker 服务器，也就是只确认是否正确到达 Exchange 中
             rabbitTemplate.setConfirmCallback(confirmCallback);
             System.out.println("Sender : " + a + " " + context);
-            this.rabbitTemplate.convertAndSend(ParamConstant.QUEUE_NAME, a + " : " + context);
+            this.rabbitTemplate.convertAndSend(WorkParamConstant.QUEUE_NAME, a + " : " + context);
         });
         return "success";
     }

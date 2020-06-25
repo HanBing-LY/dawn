@@ -16,6 +16,6 @@ spring:
       simple:
         concurrency: 1
         ## manual:手动 ack（确认）
-        acknowledge-mode: auto
+        acknowledge-mode: manual
         max-concurrency: 1
         prefetch: 1

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SimpleConsumer1 {
 
-    @RabbitListener(queues = ParamConstant.QUEUE_NAME)
+    @RabbitListener(queues = SimpleParamConstant.QUEUE_NAME)
     public void process(String hello) {
         System.out.println("SimpleConsumer1  : " + hello);
     }

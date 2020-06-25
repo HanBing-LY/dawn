@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author liyuan
@@ -23,10 +24,12 @@ import java.util.Map;
 @Component
 public class WorkConsumer1 {
 
-    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = ParamConstant.QUEUE_NAME, durable = "true"), exchange = @Exchange(name = ParamConstant.EXCHANGE_NAME)))
+    private AtomicInteger atomicInteger = new AtomicInteger(0);
+
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = WorkParamConstant.QUEUE_NAME, durable = "true"), exchange = @Exchange(name = WorkParamConstant.EXCHANGE_NAME)))
     @RabbitHandler
     public void process(@Payload String hello, @Headers Map<String, Object> headers, Channel channel) throws IOException {
-        System.out.println("SimpleConsumer1  : " + hello);
+        System.out.println("WorkConsumer1  : " + hello);
         /**
          * Delivery Tag 用来标识信道中投递的消息。RabbitMQ 推送消息给 Consumer 时，会附带一个 Delivery Tag，
          * 以便 Consumer 可以在消息确认时告诉 RabbitMQ 到底是哪条消息被确认了。
@@ -42,5 +45,7 @@ public class WorkConsumer1 {
 
         //ACK,确认一条消息已经被消费
         channel.basicAck(deliveryTag, multiple);
+        System.out.println("1号累计消费{}次-------------" + atomicInteger.incrementAndGet());
+//        channel.close();
     }
 }

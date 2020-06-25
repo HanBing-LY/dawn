@@ -1,4 +1,4 @@
-package com.xiaoyuan.mq.rabbitmq.template.client.work;
+package com.xiaoyuan.mq.rabbitmq.template.client.pubsub;
 
 
 import com.rabbitmq.client.Channel;
@@ -12,25 +12,15 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author liyuan
- * @description work工作队列
- * 一:轮询分发
- * 1、消费者1和消费者2获取到的消息内容是不同的，同一个消息只能被一个消费者获取。
- * 2、消费者1和消费者2获取到的消息的数量是相同的，一个是消费奇数号消息，一个是偶数。
- * 二:公平分发(能者多劳模式)
- * 1、根据消费的时间去分发,谁消费结束直接再次发送给他
- */
 @Component
-public class WorkConsumer2 {
+public class FanoutConsumer2 {
 
     private AtomicInteger atomicInteger = new AtomicInteger(0);
 
-    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = WorkParamConstant.QUEUE_NAME, durable = "true"), exchange = @Exchange(name = WorkParamConstant.EXCHANGE_NAME)))
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = FanoutParamConstant.QUEUE_NAME_TWO, durable = "true"), exchange = @Exchange(name = FanoutParamConstant.EXCHANGE_NAME, type = "fanout"), key = "pubsub"))
     @RabbitHandler
     public void process(@Payload String hello, @Headers Map<String, Object> headers, Channel channel) throws IOException {
-//        Thread.sleep(100);
-        System.out.println("WorkConsumer2  : " + hello);
+        System.out.println(" pubsub : " + hello);
         /**
          * Delivery Tag 用来标识信道中投递的消息。RabbitMQ 推送消息给 Consumer 时，会附带一个 Delivery Tag，
          * 以便 Consumer 可以在消息确认时告诉 RabbitMQ 到底是哪条消息被确认了。
@@ -47,6 +37,5 @@ public class WorkConsumer2 {
         //ACK,确认一条消息已经被消费
         channel.basicAck(deliveryTag, multiple);
         System.out.println("2号累计消费{}次-------------" + atomicInteger.incrementAndGet());
-//        channel.close();
     }
 }

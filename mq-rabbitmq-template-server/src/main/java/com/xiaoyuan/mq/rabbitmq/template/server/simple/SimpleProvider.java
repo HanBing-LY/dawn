@@ -22,7 +22,7 @@ public class SimpleProvider {
         //简单对列的情况下routingKey即为Q名
         new Random().ints().limit(i).forEach(a -> {
             System.out.println("Sender : " + a + " " + context);
-            this.rabbitTemplate.convertAndSend(ParamConstant.QUEUE_NAME, a + " : " + context);
+            this.rabbitTemplate.convertAndSend(SimpleParamConstant.QUEUE_NAME, a + " : " + context);
         });
         return "success";
     }
