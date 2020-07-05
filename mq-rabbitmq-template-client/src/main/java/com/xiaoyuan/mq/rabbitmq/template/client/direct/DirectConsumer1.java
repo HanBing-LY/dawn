@@ -40,8 +40,15 @@ public class DirectConsumer1 {
          */
         boolean multiple = false;
 
+        //被拒绝的是否重新入队列
+        boolean requeue = false ;
+
         //ACK,确认一条消息已经被消费
-        channel.basicAck(deliveryTag, multiple);
+        try {
+            channel.basicAck(deliveryTag, multiple);
+        } catch (IOException e) {
+            channel.basicNack(deliveryTag,multiple,requeue);
+        }
         System.out.println("1号累计消费{}次-------------" + atomicInteger.incrementAndGet());
     }
 
