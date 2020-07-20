@@ -32,8 +32,9 @@ public class ChatServer {
                         }
                     });
             System.out.println("聊天室server启动。。");
+            // 设置本地服务端口,进行绑定
             ChannelFuture channelFuture = bootstrap.bind(9000).sync();
-            //关闭通道
+            // 阻塞,等待连接,关闭通道
             channelFuture.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();

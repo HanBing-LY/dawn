@@ -23,7 +23,7 @@ public class NettyClient {
                         // 向服务器发起沟通连接,准备以后要发数据
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            //加入处理器
+                            //加入处理器,有消息产生会回调
                             ch.pipeline().addLast(new NettyClientHandler());
                         }
                     });

@@ -8,6 +8,13 @@ import java.util.List;
 
 public class ByteToLongDecoder extends ByteToMessageDecoder {
 
+    /**
+     * @description 解码,防止拆包,黏包
+     * @param ctx
+     * @param in
+     * @param out
+     * @throws Exception
+     */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         System.out.println("ByteToLongDecoder decode 被调用");

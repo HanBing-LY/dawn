@@ -6,6 +6,13 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 public class LongToByteEncoder extends MessageToByteEncoder<Long> {
 
+    /**
+     * @description 编码
+     * @param ctx
+     * @param msg
+     * @param out
+     * @throws Exception
+     */
     @Override
     protected void encode(ChannelHandlerContext ctx, Long msg, ByteBuf out) throws Exception {
         System.out.println("LongToByteEncoder encode被调用");

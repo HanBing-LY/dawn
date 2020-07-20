@@ -5,6 +5,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
+    /**
+     * 服务地址读取客户端信息,返回数据
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         //System.out.println("从客户端读取到String：" + msg.toString());

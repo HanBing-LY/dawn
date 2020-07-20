@@ -14,6 +14,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * netty 心跳检测
+ */
 public class HeartBeatServer {
 
     public static void main(String[] args) throws Exception {
