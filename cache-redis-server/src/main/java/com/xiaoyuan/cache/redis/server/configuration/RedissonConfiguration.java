@@ -6,14 +6,13 @@ import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
 import org.redisson.config.Config;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
 
 /**
  * @author liyuan
  * @date  2019-12-29-23:17
  */
-@Configuration
+//@Configuration
 public class RedissonConfiguration {
 
     private String address = "redis://11.11.11.111:6379";

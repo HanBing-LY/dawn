@@ -1,4 +1,4 @@
-package com.xiaoyuan.threadjuc.thread.pool;
+package com.xiaoyuan.threadjuc.thread.pool.learn;
 
 public class ThreadPoolDemo implements Runnable{
 
