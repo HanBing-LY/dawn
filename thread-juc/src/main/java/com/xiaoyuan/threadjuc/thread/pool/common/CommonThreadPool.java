@@ -104,7 +104,7 @@ public class CommonThreadPool {
      * @param threadSupplier 双业务,第二个线程接受上一个线程的结果,返回值是第一个线程的
      * @description 执行业务, 无返回值; 当心吞异常哦!
      */
-    public static <Object> Object performAccept(ThreadSupplier<Void> threadSupplier, ThreadSupplier threadSupplier2) throws ExecutionException, InterruptedException {
+ /*   public static <Object> Object performAccept(ThreadSupplier<Void> threadSupplier, ThreadSupplier threadSupplier2) throws ExecutionException, InterruptedException {
         CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(() -> {
             System.out.println(Thread.currentThread().getId() + "线程执行----------");
             return threadSupplier.perform();
@@ -115,5 +115,5 @@ public class CommonThreadPool {
         }, threadPoolExecutor);
         // 获取第1个线程的返回值
         return completableFuture.get();
-    }
+    }*/
 }
