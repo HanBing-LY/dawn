@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
 /**
  * @author : liyuan  
@@ -49,6 +50,21 @@ public class LuaTests {
         System.out.println(success);
     }
 
+    public void distributedLock() {
+        String lockKey = "";
+        String uuid = UUID.randomUUID().toString();
+        long expireTime = 30;
+        String scriptLock = "if (redis.call('exists', KEYS[1]) == 0) " +
+                "then redis.call('set', KEYS[1], ARGV[1]) redis.call('expire', KEYS[1], ARGV[2]);" +
+                " return 1; " +
+                "end; " +
+                "return 0; ";
+        DefaultRedisScript<Long> defaultRedisScript = new DefaultRedisScript<>();
+        defaultRedisScript.setResultType(Long.class);
+        defaultRedisScript.setScriptText(scriptLock);
+        Long success = stringRedisTemplate.execute(defaultRedisScript, Collections.singletonList(lockKey), uuid, expireTime + "");
+        System.out.println(success != null && success == 1);
+    }
 
 
 }
