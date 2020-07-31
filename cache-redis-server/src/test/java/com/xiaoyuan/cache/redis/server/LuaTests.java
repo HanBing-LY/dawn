@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.UUID;
 
 /**
  * @author : liyuan  
@@ -50,10 +49,23 @@ public class LuaTests {
         System.out.println(success);
     }
 
-    public void distributedLock() {
-        String lockKey = "";
-        String uuid = UUID.randomUUID().toString();
-        long expireTime = 30;
+    /**
+     * @param lockKey    锁对象
+     * @param uuid       uuid或者带时间戳的字符串
+     * @param expireTime 过期时间 单位秒
+     * @return
+     * @description lua脚本-->>分布式锁
+     */
+    public boolean distributedLock(String lockKey, String uuid, long expireTime) {
+        if (StringUtils.isEmpty(lockKey)) {
+            return false;
+        }
+        if (StringUtils.isEmpty(uuid)) {
+            return false;
+        }
+        if (expireTime < 1L) {
+            return false;
+        }
         String scriptLock = "if (redis.call('exists', KEYS[1]) == 0) " +
                 "then redis.call('set', KEYS[1], ARGV[1]) redis.call('expire', KEYS[1], ARGV[2]);" +
                 " return 1; " +
@@ -63,8 +75,32 @@ public class LuaTests {
         defaultRedisScript.setResultType(Long.class);
         defaultRedisScript.setScriptText(scriptLock);
         Long success = stringRedisTemplate.execute(defaultRedisScript, Collections.singletonList(lockKey), uuid, expireTime + "");
-        System.out.println(success != null && success == 1);
+        return success != null && success == 1;
     }
 
+    /**
+     * @param lockKey      锁对象
+     * @param lockKeyValue 锁对象 值
+     * @return
+     * @description lua脚本-->>分布式锁 释放
+     */
+    public boolean distributedUnLock(String lockKey, String lockKeyValue) {
+        if (StringUtils.isEmpty(lockKey)) {
+            return false;
+        }
+        if (StringUtils.isEmpty(lockKeyValue)) {
+            return false;
+        }
+        String scriptLock = "if (redis.call('get', KEYS[1]) == ARGV[1]) " +
+                "then redis.call('del', KEYS[1]) ;" +
+                " return 1; " +
+                "end; " +
+                "return 0; ";
+        DefaultRedisScript<Long> defaultRedisScript = new DefaultRedisScript<>();
+        defaultRedisScript.setResultType(Long.class);
+        defaultRedisScript.setScriptText(scriptLock);
+        Long success = stringRedisTemplate.execute(defaultRedisScript, Collections.singletonList(lockKey), lockKeyValue);
+        return success != null && success == 1;
+    }
 
 }
