@@ -227,6 +227,7 @@ public abstract class AbstractQueuedSynchronizer
             node.prev = pred;
             // 2.3 CAS将节点插入同步队列的尾部
             if (compareAndSetTail(pred, node)) {
+                // 入队也存在竞争
                 pred.next = node;
                 return node;
             }
@@ -395,7 +396,10 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
-     *
+     * waitestate = 0 - > -1 head节点为什么改到-1，因为持有锁的线程T0在释放锁的时候，得判断head节点的waitestate是否!=0,如果！=0成立，会再把waitstate = -1->0,要想唤醒排队的第一个线程T1，T1被唤醒再接着走循环，去抢锁，可能会再失败（在非公平锁场景下），此时可能有线程T3持有了锁！T1可能再次被阻塞，head的节点状态需要再一次经历两轮循环：waitState = 0 -> -1
+     * Park阻塞线程唤醒有两种方式：
+     * 1、中断
+     * 2、release()
      */
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
         int ws = pred.waitStatus;
@@ -440,17 +444,27 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     * 节点阻塞之前还得再尝试一次获取锁：
+     * 1，能够获取到，节点出队，并且把head往后挪一个节点，新的头结点就是当前节点
+     * 2、不能获取到，阻塞等待被唤醒
+     * 1.首先第1轮循环、修改head的状态，修改成sinal=-1标记处可以被唤醒.
+     * 2.第2轮循环，阻塞线程，并且需要判断线程是否是有中断信号唤醒的！
      * 已经在队列当中的Thread节点，准备阻塞等待获取锁
      */
     final boolean acquireQueued(final Node node, int arg) {
         boolean failed = true;
         try {
             boolean interrupted = false;
-            for (; ; ) {//死循环
-                final Node p = node.predecessor();//找到当前结点的前驱结点
-                if (p == head && tryAcquire(arg)) {//如果前驱结点是头结点，才tryAcquire，其他结点是没有机会tryAcquire的。
-                    setHead(node);//获取同步状态成功，将当前结点设置为头结点。
-                    p.next = null; // help GC
+            for (; ; ) {
+                //死循环
+                final Node p = node.predecessor();
+                //找到当前结点的前驱结点
+                if (p == head && tryAcquire(arg)) {
+                    //如果前驱结点是头结点，才tryAcquire，其他结点是没有机会tryAcquire的。
+                    setHead(node);
+                    //获取同步状态成功，将当前结点设置为头结点。
+                    p.next = null;
+                    // help GC
                     failed = false;
                     return interrupted;
                 }
@@ -707,6 +721,7 @@ public abstract class AbstractQueuedSynchronizer
     public final void acquire(int arg) {
         //尝试获取锁
         if (!tryAcquire(arg) &&
+                // 获取锁失败则去排队
                 acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) {
             //独占模式
             selfInterrupt();
