@@ -5,13 +5,9 @@ spring:
   application:
     name: cache-redis-server
   redis:
-#    host: 11.11.11.111
-#    port: 6379
-#    database: 2
-    host: r-bp1u1gb3eqd388g38jpd.redis.rds.aliyuncs.com
+    host: 11.11.11.111
     port: 6379
-    password: Hellosyman1
-    database: 77
+    database: 2
 #    database: 66
 #    timeout: 3000
 #    password: test

@@ -19,11 +19,7 @@ public class LoggingHandler extends Handler {
             if (null == next) {
                 return true;
             }
-            if (!next.process(request)) {
-                return false;
-            } else {
-                return true;
-            }
+            return next.process(request);
         }
         return false;
     }

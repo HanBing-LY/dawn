@@ -245,7 +245,7 @@ public class ExcelUtil {
         XSSFWorkbook xssfWorkbook = createExcelFile(clazz, objs, map, excelName);
         response.reset(); //清除buffer缓存
         response.setHeader("Content-Disposition", "attachment;filename=" + new String((excelName + EXCEL2007U).getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-        response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
         response.setDateHeader("Expires", 0);

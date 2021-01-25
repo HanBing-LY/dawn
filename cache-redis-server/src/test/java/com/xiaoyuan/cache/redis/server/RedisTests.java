@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.Resource;
-import java.util.UUID;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author : liyuan  
@@ -25,15 +26,14 @@ public class RedisTests {
 
     @Test
     public void init() {
-        String chatLog = "LIVE_CHAT_ROOM_LOG";
-        int i = 0;
-        for(;;){
-            if(i < 1){
-                stringRedisTemplate.opsForHyperLogLog().add(chatLog, UUID.randomUUID().toString());
-                i++;
-            }else {
-                break;
+        String key = "ext:sequence:increment";
+        Set<Object> keys = stringRedisTemplate.opsForHash().keys(key);
+        keys = keys.stream().filter(i -> !(i.toString().contains("BILL") || i.toString().contains("ORDER")|| i.toString().contains("VIP")|| i.toString().contains("LIVE")|| i.toString().contains("TOCHASH"))).collect(Collectors.toSet());
+        keys.forEach(i -> {
+            if (i.toString().contains("DATA")) {
+                System.out.println(i.toString());
             }
-        }
+        });
+
     }
 }
