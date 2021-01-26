@@ -189,14 +189,15 @@ public abstract class AbstractQueuedSynchronizer
     static final long spinForTimeoutThreshold = 1000L;
 
     /**
-     * 节点加入CLH同步队列
+     * 节点加入CLH同步队列,队列初始化,自旋确保入队成功,尾插
      */
     private Node enq(final Node node) {
         for (; ; ) {
             Node t = tail;
             if (t == null) { // Must initialize
-                // 队列为空需要初始化，创建空的头节点,同步等待队列的头和尾都是空的node对象,不是null
+                // 队列为空,需要初始化，创建空的头节点,同步等待队列的头和尾都是空的node对象,不是null
                 if (compareAndSetHead(new Node())) {
+                    // 将 head 改成空的node对象
                     tail = head;
                 }
             } else {
@@ -224,10 +225,13 @@ public abstract class AbstractQueuedSynchronizer
         // 2. 1当前尾节点是否为null？
         if (pred != null) {
             // 2.2 将当前节点尾插入的方式
+            // 将当前待插入节点的前驱指针 node.prev 指向原队列的尾节点 tail
             node.prev = pred;
             // 2.3 CAS将节点插入同步队列的尾部
+            // CAS将原队列里面的尾节点tail 改成当前待插入的节点
             if (compareAndSetTail(pred, node)) {
                 // 入队也存在竞争
+                // 2.4 将原队列的尾节点的后驱指针 pred.next 指向新插入的新节点 node
                 pred.next = node;
                 return node;
             }
@@ -396,6 +400,8 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     * 队列中每个节点waitStatus记录的是后一个节点的状态!!!
+     *
      * waitestate = 0 - > -1 head节点为什么改到-1，因为持有锁的线程T0在释放锁的时候，得判断head节点的waitestate是否!=0,如果！=0成立，会再把waitstate = -1->0,要想唤醒排队的第一个线程T1，T1被唤醒再接着走循环，去抢锁，可能会再失败（在非公平锁场景下），此时可能有线程T3持有了锁！T1可能再次被阻塞，head的节点状态需要再一次经历两轮循环：waitState = 0 -> -1
      * Park阻塞线程唤醒有两种方式：
      * 1、中断
@@ -403,10 +409,10 @@ public abstract class AbstractQueuedSynchronizer
      */
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
         int ws = pred.waitStatus;
-        if (ws == Node.SIGNAL)
-            /*
+        if (ws == Node.SIGNAL) {
+            /**
              * 若前驱结点的状态是SIGNAL，意味着当前结点可以被安全地park
-             */ {
+             */
             return true;
         }
         if (ws > 0) {
@@ -456,15 +462,14 @@ public abstract class AbstractQueuedSynchronizer
         try {
             boolean interrupted = false;
             for (; ; ) {
-                //死循环
                 final Node p = node.predecessor();
-                //找到当前结点的前驱结点
+                // 找到当前结点的前驱结点
                 if (p == head && tryAcquire(arg)) {
-                    //如果前驱结点是头结点，才tryAcquire，其他结点是没有机会tryAcquire的。
+                    // 如果前驱结点是头结点，才tryAcquire，其他结点是没有机会tryAcquire的。
                     setHead(node);
-                    //获取同步状态成功，将当前结点设置为头结点。
+                    // 获取同步状态成功，将当前结点设置为头结点。
                     p.next = null;
-                    // help GC
+                    // p.next 置空 help GC
                     failed = false;
                     return interrupted;
                 }
