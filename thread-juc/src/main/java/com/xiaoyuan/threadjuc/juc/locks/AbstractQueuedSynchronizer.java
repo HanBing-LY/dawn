@@ -36,10 +36,8 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * Wait queue node class.
-     * <p>
      * 不管是条件队列，还是CLH等待队列
      * 都是基于Node类
-     * <p>
      * AQS当中的同步等待队列也称CLH队列，CLH队列是Craig、Landin、Hagersten三人
      * 发明的一种基于双向链表数据结构的队列，是FIFO先入先出线程等待队列，Java中的
      * CLH队列是原CLH队列的一个变种,线程由原自旋机制改为阻塞机制。
@@ -218,24 +216,23 @@ public abstract class AbstractQueuedSynchronizer
      * @return the new node
      */
     private Node addWaiter(Node mode) {
-        // 1. 将当前线程构建成Node类型
+        // 将当前线程构建成Node类型
         Node node = new Node(Thread.currentThread(), mode);
         // Try the fast path of enq; backup to full enq on failure
         Node pred = tail;
-        // 2. 1当前尾节点是否为null？
+        // 当前尾节点是否为null,如果为null说明还没有初始化,需要队列完成初始化
         if (pred != null) {
-            // 2.2 将当前节点尾插入的方式
+            // 尾插法
             // 将当前待插入节点的前驱指针 node.prev 指向原队列的尾节点 tail
             node.prev = pred;
-            // 2.3 CAS将节点插入同步队列的尾部
             // CAS将原队列里面的尾节点tail 改成当前待插入的节点
             if (compareAndSetTail(pred, node)) {
-                // 入队也存在竞争
-                // 2.4 将原队列的尾节点的后驱指针 pred.next 指向新插入的新节点 node
+                // 将原队列的尾节点的后驱指针 pred.next 指向新插入的新节点 node
                 pred.next = node;
                 return node;
             }
         }
+        // 队列未初始化,入队失败,走自旋
         enq(node);
         return node;
     }
@@ -400,34 +397,26 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
-     * 队列中每个节点waitStatus记录的是后一个节点的状态!!!
-     *
+     * 队列中每个节点waitStatus记录的是后一个节点的状态
      * waitestate = 0 - > -1 head节点为什么改到-1，因为持有锁的线程T0在释放锁的时候，得判断head节点的waitestate是否!=0,如果！=0成立，会再把waitstate = -1->0,要想唤醒排队的第一个线程T1，T1被唤醒再接着走循环，去抢锁，可能会再失败（在非公平锁场景下），此时可能有线程T3持有了锁！T1可能再次被阻塞，head的节点状态需要再一次经历两轮循环：waitState = 0 -> -1
-     * Park阻塞线程唤醒有两种方式：
+     * 阻塞线程唤醒有两种方式：
      * 1、中断
      * 2、release()
      */
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
         int ws = pred.waitStatus;
         if (ws == Node.SIGNAL) {
-            /**
-             * 若前驱结点的状态是SIGNAL，意味着当前结点可以被安全地park
-             */
+            // 若前驱结点的状态是SIGNAL，意味着当前结点可以被安全地park
             return true;
         }
         if (ws > 0) {
-            /*
-             * 前驱节点状态如果被取消状态，将被移除出队列
-             */
+            // 前驱节点状态如果被取消状态，将被移除出队列
             do {
                 node.prev = pred = pred.prev;
             } while (pred.waitStatus > 0);
             pred.next = node;
         } else {
-            /*
-             * 当前驱节点waitStatus为 0 or PROPAGATE状态时
-             * 将其设置为SIGNAL状态，然后当前结点才可以可以被安全地park
-             */
+            //  当前驱节点waitStatus为 0 or PROPAGATE状态时将其设置为SIGNAL状态，然后当前结点才可以可以被安全地park
             compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
         }
         return false;
@@ -445,7 +434,8 @@ public abstract class AbstractQueuedSynchronizer
      * LockSupport.park 底层实现逻辑调用系统内核功能 pthread_mutex_lock 阻塞线程
      */
     private final boolean parkAndCheckInterrupt() {
-        LockSupport.park(this);//阻塞
+        // 阻塞,注意如果 LockSupport.park() 这种阻塞,那么一旦被唤醒就无法再次被阻塞
+        LockSupport.park(this);
         return Thread.interrupted();
     }
 
@@ -460,14 +450,15 @@ public abstract class AbstractQueuedSynchronizer
     final boolean acquireQueued(final Node node, int arg) {
         boolean failed = true;
         try {
+            // 线程是否被中断过
             boolean interrupted = false;
             for (; ; ) {
-                final Node p = node.predecessor();
                 // 找到当前结点的前驱结点
+                final Node p = node.predecessor();
+                // 如果前驱结点是头结点，才tryAcquire，其他结点是没有机会tryAcquire的。
                 if (p == head && tryAcquire(arg)) {
-                    // 如果前驱结点是头结点，才tryAcquire，其他结点是没有机会tryAcquire的。
-                    setHead(node);
                     // 获取同步状态成功，将当前结点设置为头结点。
+                    setHead(node);
                     p.next = null;
                     // p.next 置空 help GC
                     failed = false;
@@ -724,11 +715,11 @@ public abstract class AbstractQueuedSynchronizer
      * 获取独占锁
      */
     public final void acquire(int arg) {
-        //尝试获取锁
+        // 再次尝试获取锁,如果失败则入队
         if (!tryAcquire(arg) &&
                 // 获取锁失败则去排队
                 acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) {
-            //独占模式
+            // 中断一下线程,线程中断状态位返还,对终端过的线程不做处理
             selfInterrupt();
         }
     }

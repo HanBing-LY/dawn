@@ -2,7 +2,6 @@ package com.xiaoyuan.threadjuc.juc.locks;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
@@ -17,7 +16,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * ReentrantLock锁同步操作的基础类,继承自AQS框架.
      * 该类有两个继承类，1、NonfairSync 非公平锁，2、FairSync公平锁
      */
-    abstract static class Sync extends java.util.concurrent.locks.AbstractQueuedSynchronizer {
+    abstract static class Sync extends com.xiaoyuan.threadjuc.juc.locks.AbstractQueuedSynchronizer {
         private static final long serialVersionUID = -5179523762034025860L;
 
         /**
@@ -29,50 +28,54 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * 尝试获取非公平锁
          */
         final boolean nonfairTryAcquire(int acquires) {
-            //acquires = 1
+            // acquires = 1
             final Thread current = Thread.currentThread();
             int c = getState();
             /**
              * 不需要判断同步队列（CLH）中是否有排队等待线程
-             * 判断state状态是否为0，不为0可以加锁
+             * 判断state状态是否为0，为0可以加锁
              */
             if (c == 0) {
-                //unsafe操作，cas修改state状态
+                // unsafe操作，cas修改state状态 0 -> 1
                 if (compareAndSetState(0, acquires)) {
-                    //独占状态锁持有者指向当前线程
+                    // 独占状态锁持有者指向当前线程
                     setExclusiveOwnerThread(current);
                     return true;
                 }
-            }
-            /**
-             * state状态不为0，判断锁持有者是否是当前线程，
-             * 如果是当前线程持有 则state+1
-             */
-            else if (current == getExclusiveOwnerThread()) {
+            } else if (current == getExclusiveOwnerThread()) {
+                /**
+                 * 可重入
+                 * state状态不为0，判断锁持有者是否是当前线程，
+                 * 如果是当前线程持有 则state+1
+                 */
                 int nextc = c + acquires;
-                if (nextc < 0) // overflow
-                {
+                if (nextc < 0) {
+                    // overflow
                     throw new Error("Maximum lock count exceeded");
                 }
+                // 只有锁的持有线程可以操作,不会发生线程安全问题
                 setState(nextc);
                 return true;
             }
-            //加锁失败
+            // 加锁失败
             return false;
         }
 
         /**
+         * @return false 别人不可获取锁  true 别人已经可以获取锁
          * 释放锁
          */
         @Override
         protected final boolean tryRelease(int releases) {
             int c = getState() - releases;
+            // 判断当前需要释放锁的线程是否是持有锁的线程
             if (Thread.currentThread() != getExclusiveOwnerThread()) {
                 throw new IllegalMonitorStateException();
             }
             boolean free = false;
             if (c == 0) {
                 free = true;
+                // 锁已经完全被释放
                 setExclusiveOwnerThread(null);
             }
             setState(c);
@@ -87,20 +90,34 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             return getExclusiveOwnerThread() == Thread.currentThread();
         }
 
-        //返回条件对象
+        // 返回条件对象
         final ConditionObject newCondition() {
             return new ConditionObject();
         }
 
-
+        /**
+         * 返回当前持有锁的线程
+         *
+         * @return
+         */
         final Thread getOwner() {
             return getState() == 0 ? null : getExclusiveOwnerThread();
         }
 
+        /**
+         * 返回当前线程持有锁的数量
+         *
+         * @return
+         */
         final int getHoldCount() {
             return isHeldExclusively() ? getState() : 0;
         }
 
+        /**
+         * 已经被上锁
+         *
+         * @return
+         */
         final boolean isLocked() {
             return getState() != 0;
         }
@@ -108,8 +125,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         /**
          * Reconstitutes the instance from a stream (that is, deserializes it).
          */
-        private void readObject(java.io.ObjectInputStream s)
-                throws java.io.IOException, ClassNotFoundException {
+        private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
             s.defaultReadObject();
             setState(0); // reset to unlocked state
         }
@@ -123,21 +139,18 @@ public class ReentrantLock implements Lock, java.io.Serializable {
 
         /**
          * 加锁行为
+         * 直接尝试加锁
+         * 与公平锁实现的加锁行为一个最大的区别在于，此处不会去判断同步队列(CLH队列)中是否有排队等待加锁的节点，上来直接加锁（判断state是否为0,CAS修改state为1），并将独占锁持有者 exclusiveOwnerThread 属性指向当前线程
+         * 如果当前有人占用锁，再尝试去加一次锁
          */
         @Override
         final void lock() {
-            /**
-             * 第一步：直接尝试加锁
-             * 与公平锁实现的加锁行为一个最大的区别在于，此处不会去判断同步队列(CLH队列)中
-             * 是否有排队等待加锁的节点，上来直接加锁（判断state是否为0,CAS修改state为1）
-             * ，并将独占锁持有者 exclusiveOwnerThread 属性指向当前线程
-             * 如果当前有人占用锁，再尝试去加一次锁
-             */
             if (compareAndSetState(0, 1)) {
                 setExclusiveOwnerThread(Thread.currentThread());
-            } else
-            //AQS定义的方法,加锁
-            {
+            } else {
+                // 顶层AQS定义的方法,加锁
+                // 失败了还去加锁why? 为什么加两次
+                // 线程阻塞代价较高,在真正阻塞之前,再次尝试获取一次锁
                 acquire(1);
             }
         }
@@ -326,9 +339,9 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         if (condition == null) {
             throw new NullPointerException();
         }
-        if (!(condition instanceof java.util.concurrent.locks.AbstractQueuedSynchronizer.ConditionObject)) {
+        if (!(condition instanceof com.xiaoyuan.threadjuc.juc.locks.AbstractQueuedSynchronizer.ConditionObject)) {
             throw new IllegalArgumentException("not owner");
         }
-        return sync.hasWaiters((AbstractQueuedSynchronizer.ConditionObject) condition);
+        return sync.hasWaiters((com.xiaoyuan.threadjuc.juc.locks.AbstractQueuedSynchronizer.ConditionObject) condition);
     }
 }
