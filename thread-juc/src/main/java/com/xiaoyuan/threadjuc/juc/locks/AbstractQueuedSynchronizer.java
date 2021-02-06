@@ -914,7 +914,6 @@ public abstract class AbstractQueuedSynchronizer
                 ((s = h.next) == null || s.thread != Thread.currentThread());
     }
 
-
     // Instrumentation and monitoring methods
 
     /**
@@ -975,7 +974,6 @@ public abstract class AbstractQueuedSynchronizer
         }
         return list;
     }
-
 
     // Internal support methods for Conditions
 
