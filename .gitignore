@@ -81,3 +81,5 @@ mvnw.cmd
 
 /*/*.iml
 /*/target
+
+**/test/**
