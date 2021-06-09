@@ -3,7 +3,7 @@ package com.xiaoyuan.designpattern.create.factorymethod;
 /**
  * 工厂方法
  *
- * @author : liyuan  
+ * @author : cold ice  
  * @date : 2020/9/23 16:35  
  */
 public abstract class CarFactory {

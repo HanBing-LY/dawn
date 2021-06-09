@@ -3,7 +3,7 @@ package com.xiaoyuan.designpattern.create.singleton.lazy;
 /**
  * 单例模式 懒汉式
  *
- * @author : liyuan  
+ * @author : cold ice  
  * @date : 2020/9/23 13:47  
  */
 public class LazySingleton {

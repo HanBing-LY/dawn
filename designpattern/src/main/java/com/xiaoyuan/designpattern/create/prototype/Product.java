@@ -3,7 +3,7 @@ package com.xiaoyuan.designpattern.create.prototype;
 import java.io.*;
 
 /**
- * @author : liyuan  
+ * @author : cold ice  
  *
  * @date : 2020/9/23 16:58  
  */

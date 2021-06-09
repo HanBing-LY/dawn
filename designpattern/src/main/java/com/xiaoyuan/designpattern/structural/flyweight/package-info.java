@@ -1,0 +1,4 @@
+/**
+ * 享元（Flyweight）模式：运用共享技术来有效地支持大量细粒度对象的复用。
+ */
+package com.xiaoyuan.designpattern.structural.flyweight;

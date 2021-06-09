@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * 反射攻击
  *
- * @author : liyuan  
+ * @author : cold ice  
  * @date : 2020/9/23 13:51  
  */
 public class InnerClassSingleton implements Serializable {

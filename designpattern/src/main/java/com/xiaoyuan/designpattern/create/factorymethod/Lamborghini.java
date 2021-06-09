@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * lamborghini 兰博基尼
  *
- * @author : liyuan  
+ * @author : cold ice  
  * @date : 2020/9/23 16:35  
  */
 public class Lamborghini implements Car {

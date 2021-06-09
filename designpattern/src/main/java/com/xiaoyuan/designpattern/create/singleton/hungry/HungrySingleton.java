@@ -3,7 +3,7 @@ package com.xiaoyuan.designpattern.create.singleton.hungry;
 /**
  * 单例模式 恶汉式
  *
- * @author : liyuan  
+ * @author : cold ice  
  * @date : 2020/9/23 13:49  
  */
 public class HungrySingleton {

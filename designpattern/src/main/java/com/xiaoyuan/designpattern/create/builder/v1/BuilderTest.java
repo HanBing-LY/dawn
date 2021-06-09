@@ -1,7 +1,7 @@
 package com.xiaoyuan.designpattern.create.builder.v1;
 
 /**
- * @author : liyuan  
+ * @author : cold ice  
  * 建造者模式
  * 1.需要生成的对象具有复杂的内部结构
  * 2.需要生成的对象内部属性本身相互依赖

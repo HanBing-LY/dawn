@@ -1,7 +1,7 @@
 package com.xiaoyuan.designpattern.create.factorymethod;
 
 /**
- * @author : liyuan  
+ * @author : cold ice  
  * 简单工厂
  * @date : 2020/9/23 16:34  
  */

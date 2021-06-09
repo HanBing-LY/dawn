@@ -1,7 +1,7 @@
 package com.xiaoyuan.designpattern.create.abstractfactroy;
 
 /**
- * @author : liyuan  
+ * @author : cold ice  
  *  抽象工厂
  * @date : 2020/9/23 16:41  
  */

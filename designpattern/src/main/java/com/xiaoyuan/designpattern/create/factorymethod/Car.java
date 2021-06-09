@@ -3,7 +3,7 @@ package com.xiaoyuan.designpattern.create.factorymethod;
 import java.math.BigDecimal;
 
 /**
- * @author : liyuan  
+ * @author : cold ice  
  * @date : 2020/9/23 16:34  
  */
 public interface Car {
