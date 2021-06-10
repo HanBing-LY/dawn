@@ -1,7 +1,6 @@
 package com.xiaoyuan.designpattern.behavioral.interpreter;
 
 /**
- *
  * @author cold ice
  */
 public class AndExpression implements Expression {
