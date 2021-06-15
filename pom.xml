@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.11.RELEASE</version>
+        <version>2.3.2.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,12 +51,12 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!--cloud配置-->
-        <spring-boot.version>2.3.11.RELEASE</spring-boot.version>
-        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
-        <spring-cloud-alibaba.version>2.2.1.RELEASE</spring-cloud-alibaba.version>
+        <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
+        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <spring-cloud-alibaba.version>2.2.5.RELEASE</spring-cloud-alibaba.version>
         <!--db相关-->
         <druid-spring-boot-starter.version>1.1.22</druid-spring-boot-starter.version>
-        <mybatis-plus-boot-starter.version>3.3.2</mybatis-plus-boot-starter.version>
+        <mybatis-plus-boot-starter.version>3.4.3</mybatis-plus-boot-starter.version>
         <!--cache相关-->
         <jedis.version>3.3.0</jedis.version>
         <redisson.version>3.13.1</redisson.version>
@@ -69,7 +69,12 @@
         <zip4j.version>2.1.2</zip4j.version>
         <hutool.version>5.1.0</hutool.version>
 
-        <seata.version>1.4.1</seata.version>
+        <nacos.version>1.4.1</nacos.version>
+        <Dubbo.version>2.7.8</Dubbo.version>
+        <sentinel.version>1.8.0</sentinel.version>
+        <seata.version>1.3.0</seata.version>
+        <RocketMQ.version>4.4.0</RocketMQ.version>
+
         <netty.version>4.1.42.Final</netty.version>
         <poi-ooxml.version>4.1.2</poi-ooxml.version>
         <aliyun-java-sdk-core.version>4.0.8</aliyun-java-sdk-core.version>
@@ -80,7 +85,8 @@
     <!-- 子模块继承之后，提供作用：锁定版本 + 子module不用谢groupId和version -->
     <dependencyManagement>
         <dependencies>
-            <!--spring boot 2.2.5-->
+
+            <!--spring boot-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -88,7 +94,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!--spring cloud Hoxton.SR3-->
+
+            <!--spring cloud-->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -96,7 +103,9 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!--Spring cloud alibaba 2.2.0.RELEASE-->
+
+            <!--Spring cloud alibaba-->
+            <!-- https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
@@ -117,12 +126,14 @@
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid-spring-boot-starter.version}</version>
             </dependency>
+
             <!--mybatis plus-->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus-boot-starter.version}</version>
             </dependency>
+
             <!--redisson-->
             <dependency>
                 <groupId>org.redisson</groupId>
@@ -166,11 +177,13 @@
                 <artifactId>aliyun-java-sdk-core</artifactId>
                 <version>${aliyun-java-sdk-core.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
                 <version>${aliyun-java-sdk-dysmsapi.version}</version>
             </dependency>
+
             <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
